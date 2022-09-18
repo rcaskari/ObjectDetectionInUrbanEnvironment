@@ -12,15 +12,71 @@ Object detection is at the core of self-driving car systems - a vehicle system n
 ### Set up
 This section should contain a brief description of the steps to follow to run the code for this repository.
 
+Note: project run in udacity provided workspace 
+Steps to recreate involve from this workspace:
+1) Download image tfrecords from Waymo dataset then split into respective train, test, and validation sets (5 for testing, 85 for training, and 10 for validation )
+2) Implement display images in playbook and explore dataset and make observations
+3) Download pretrained SDD Resnet 50 640x640 model and familiarize self with respective config file
+4) Edit configuration to point to training and validation data points and call this file pipeline_new.config
+5) Run tensorboard.main to start monitoring model training. Will be running in notebook on localhost port 6006
+6) Train model using the pipeline_new.config which points to respective data used for experiment to see how well model performs on this data (lowered total # steps in config to not use up compute time)
+6) Run evalulation process
+7) These results can be a baseline that we improve upon with different augmentation strategies on the data
+8) Searched preprocessor.proto file to look at list of about 40 augmentation strategies to choose from.
+9) Run model training and eval again with new configuration. 
+10) Export trained model with configurations that I like
+11) Run inference_video.py that creates videos of model inferences.
+
+
 ### Dataset
 #### Dataset analysis
 This section should contain a quantitative and qualitative description of the dataset. It should include images, charts and other visualizations.
+
+I implemented the `display_instances(batch)` function to display 10 images. The data has a varied set of pictures from night/day and bright/foggy conditions. Some picture have a mix of cars, pedestrians, and bikers from near and close distances. This variability is helpful in respect to having many examples that could be representative of real life.  The following is a sample of the shown images. 
+![](assets/img1.png) 
+![](assets/img2.png)
+
+When exploring the data further I was able to find this distribution of cars, to pedestrians to bikers. 
+![](assets/data.png)
+
 #### Cross validation
 This section should detail the cross validation strategy and justify your approach.
+
+Cross validation is a tactic to help make sure that models do not overfit, and also generalize well across new examples. This workspace had already split up the test, validation, and training. It was close to a 85% training, 10% testing, and 5% validation split. 
 
 ### Training
 #### Reference experiment
 This section should detail the results of the reference experiment. It should includes training metrics and a detailed explanation of the algorithm's performances.
 
+Reference expirement did not perform well and animation revealed that it performed very poorly. Included example metrics from reference experiment. 
+
+![](assets/exp1/precision_recall_map.png)
+![](assets/exp1/loss.png)
+![](assets/exp1/lr.png)
+
+
 #### Improve on the reference
 This section should highlight the different strategies you adopted to improve your model. It should contain relevant figures and details of your findings.
+
+In order to improve this experiment further I added the following augmentations from the proto file. If more compute time was available I would have raised steps taken to 25000 rather than 2500. 
+
+  data_augmentation_options {
+    random_horizontal_flip {
+    	probability: 0.5 
+    }
+  }
+  data_augmentation_options {
+    random_crop_image {
+      min_object_covered: 0.0
+      min_aspect_ratio: 0.75
+      max_aspect_ratio: 3.0
+      min_area: 0.75
+      max_area: 1.0
+      overlap_thresh: 0.0
+    }
+
+![](assets/exp1/detectbox_recall.png)
+![](assets/exp2/detectbox_precision.png)
+![](assets/exp2/map.png)
+![](assets/exp2/loss2.png)
+![](assets/exp2/lr2.png)
