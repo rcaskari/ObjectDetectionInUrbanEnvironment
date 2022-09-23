@@ -48,7 +48,7 @@ Cross validation is a tactic to help make sure that models do not overfit, and a
 #### Reference experiment
 This section should detail the results of the reference experiment. It should includes training metrics and a detailed explanation of the algorithm's performances.
 
-Reference expirement did not perform well and animation revealed that it performed very poorly. Included example metrics from reference experiment. 
+Reference expirement did not perform well and animation revealed that it performed very poorly. Included example metrics from reference experiment. The training had many fluctiations in the losses. For the reference model, all losses start at high value and then decrease steadily to around the .5 classification loss range, 0.8 localization loss. The total loss converges near 3.
 
 ![](assets/exp1/precision_recall_map.png)
 ![](assets/exp1/loss.png)
@@ -58,7 +58,7 @@ Reference expirement did not perform well and animation revealed that it perform
 #### Improve on the reference
 This section should highlight the different strategies you adopted to improve your model. It should contain relevant figures and details of your findings.
 
-In order to improve this experiment further I added the following augmentations from the proto file. If more compute time was available I would have raised steps taken to 25000 rather than 2500. 
+In order to improve this experiment further I added the following augmentations from the proto file. If more compute time was available I would have raised steps taken to 25000 rather than 2500. I added additional augmentations around adjusted contrast and brightness to make sure that situations with dim/no light and very bright situations are also brought into considerations into the training phase.  
 
   data_augmentation_options {
     random_horizontal_flip {
@@ -74,9 +74,28 @@ In order to improve this experiment further I added the following augmentations 
       max_area: 1.0
       overlap_thresh: 0.0
     }
+    
+    data_augmentation_options {
+      random_adjust_contrast {
+    	  min_delta: 0.9 
+        max_delta: 1.5
+    }
+  }
+  data_augmentation_options {
+    random_adjust_brightness {
+    	max_delta: 0.5 
+    }
+  }
+
+![](assets/exp3/brightness.png)
+![](assets/exp3/contrast.png)
+
 
 ![](assets/exp1/detectbox_recall.png)
 ![](assets/exp2/detectbox_precision.png)
 ![](assets/exp2/map.png)
 ![](assets/exp2/loss2.png)
 ![](assets/exp2/lr2.png)
+
+## Model Improvements
+Another approach to improve the the model is experiemnt with different optimizers. The one used in this experiment is the Momentum optimizer. Research into the subject also shows that other potentials candidates for computer vision projects comprise of: Adam, RMSprop, AdaGrad, SGD, SGD with Momentum, LARS, and Adam W. Each one has its pros and cons re: convergance to sharp minima but if memory was not a problem I would attempt to use the Adam and AdamW. As the Adam optimizer seems to do well when features are limited and in this case it would be great for Bikes, and pedestrians which are included in much smaller rations in this example. 
